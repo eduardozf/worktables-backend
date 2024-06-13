@@ -11,7 +11,7 @@ app.use(express.json());
 app.use(cors()); // TODO add cors URL when pushing to production
 
 // Add application routes
-app.use(routes);
+app.use("/api", routes);
 
 // Handle all application erros
 app.use(errorHandler);
