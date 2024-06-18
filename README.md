@@ -30,8 +30,9 @@ This project is a tiny REST API to fetch weather data for a given country using 
    Create a `.env` file in the root directory and add your WeatherAPI key:
 
    ```plaintext
-   WEATHER_API_KEY=your_api_key
    PORT=3000
+   WEATHER_API_KEY=your_api_key
+   OPEN_WEATHER_MAP_API_KEY=your_api_key
    ```
 
 4. Run the server:
