@@ -1,6 +1,5 @@
 import ApiError from "@/errors/ApiError";
 import { zodErrorHandler } from "@/errors/ZodError";
-import WeatherApi from "@/services/weather/WeatherApi";
 import WeatherBuilder from "@/services/weather/WeatherBuilder";
 import { weatherRequestValidator as validator } from "@/validators/weather";
 import { Request, Response } from "express";
@@ -11,7 +10,7 @@ class WeatherController {
     try {
       const sanitizedBody = await validator.parseAsync(request.query);
 
-      const weather = new WeatherBuilder(new WeatherApi());
+      const weather = new WeatherBuilder();
       const weatherData = await weather.search(sanitizedBody);
 
       return response.json(weatherData);

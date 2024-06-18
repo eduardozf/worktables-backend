@@ -1,6 +1,8 @@
 import { z } from "zod";
-import IWeather from "../../types/IWeather";
 import { weatherRequestValidator } from "@/validators/weather";
+import ApiError from "@/errors/ApiError";
+import WeatherApi from "./WeatherApi";
+import OpenWeatherMapApi from "./OpenWeatherMapApi";
 
 export type ISearchBodyType = z.infer<typeof weatherRequestValidator>;
 
@@ -8,9 +10,9 @@ class WeatherBuilder {
   private api: IWeather;
   private fallbackApiList: Array<IWeather>;
 
-  constructor(mainApi: IWeather) {
-    this.api = mainApi;
-    this.fallbackApiList = [];
+  constructor() {
+    this.api = new WeatherApi();
+    this.fallbackApiList = [new OpenWeatherMapApi()];
   }
 
   addFallback(api: IWeather): this {
@@ -20,7 +22,33 @@ class WeatherBuilder {
   }
 
   async search({ lat, lon }: ISearchBodyType) {
-    return this.api.getWeather({ lat, lon });
+    let weather;
+
+    try {
+      weather = await this.api.getWeather({ lat, lon });
+      return this.api.normalizeResponse(weather);
+    } catch (error) {
+      console.error("Main API failed, trying fallback APIs:", error);
+    }
+
+    if (this.fallbackApiList.length === 0) {
+      throw new ApiError("All weather APIs failed");
+    }
+
+    const fallbackPromises = this.fallbackApiList.map((api) =>
+      api
+        .getWeather({ lat, lon })
+        .then((weather) => api.normalizeResponse(weather))
+    );
+
+    // First fallback to respond returns data to user
+    try {
+      const response = await Promise.race(fallbackPromises);
+      return response;
+    } catch (error) {
+      console.error("All fallback APIs failed:", error);
+      throw new ApiError("All weather APIs failed");
+    }
   }
 }
 

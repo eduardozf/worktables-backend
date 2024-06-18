@@ -3,29 +3,30 @@ export {};
 declare global {
   interface IWeather {
     getWeather(body: any): Promise<unknown>;
-    parseResponse(body: any): IWeatherResponse;
-  }
-
-  interface IWeatherLocation {
-    name: string;
-    region: string;
-    country: string;
-    lat: number;
-    lon: number;
-    timezoneId: string;
-    localTime: string;
+    normalizeResponse(body: any): IWeatherResponse;
   }
 
   interface IWeatherInfo {
-    minTemp: number;
-    maxTemp: number;
-    currentTemp: number;
-    windSpeed: number;
-    rainChance: number;
+    avg_temp_c: number;
+    avg_humidity: number;
+    avg_wind_speed: number;
+    avg_rain_chance: number;
+    condition: string;
+    icon: string;
+  }
+
+  interface IWeatherInfoHour extends IWeatherInfo {
+    time: Date;
+  }
+
+  interface IWeatherForecastItem {
+    date: Date;
+    day_resume: IWeatherInfo;
+    hour: Array<IWeatherInfoHour>;
   }
 
   interface IWeatherResponse {
-    location: IWeatherLocation;
-    forecast: Array<IWeatherInfo>;
+    source: "weather_api" | "open_weather_map";
+    data: Array<IWeatherForecastItem>;
   }
 }
